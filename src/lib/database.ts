@@ -49,8 +49,8 @@ export async function initDatabase() {
       // Initialize browser storage with mock data if empty
       await initBrowserStorage();
       console.log('Browser storage initialized');
+      return 'browser';
     }
-    return null;
   } else {
     // For server-side, we would initialize SQLite here
     console.log('Server-side database would be initialized here');
