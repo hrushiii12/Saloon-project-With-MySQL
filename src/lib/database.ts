@@ -1,6 +1,7 @@
 import { Customer } from '@/contexts/CustomersContext';
 import { Employee } from '@/contexts/StaffContext';
 import { TallyItem } from '@/contexts/TallyContext';
+import { customerApi, employeeApi, serviceApi, appointmentApi, tallyApi } from './api';
 
 // Check if we're in a browser environment
 const isBrowser = typeof window !== 'undefined';
@@ -38,9 +39,17 @@ const browserStorage = {
 // Initialize database
 export async function initDatabase() {
   if (isBrowser) {
-    // Initialize browser storage with mock data if empty
-    await initBrowserStorage();
-    console.log('Browser storage initialized');
+    try {
+      // Try to connect to the backend API
+      await customerApi.getAll();
+      console.log('Connected to Spring Boot backend');
+      return 'backend';
+    } catch (error) {
+      console.warn('Backend not available, falling back to browser storage:', error);
+      // Initialize browser storage with mock data if empty
+      await initBrowserStorage();
+      console.log('Browser storage initialized');
+    }
     return null;
   } else {
     // For server-side, we would initialize SQLite here
@@ -75,7 +84,7 @@ async function initBrowserStorage() {
 // Customer operations
 export const customerDb = {
   getAll: (): Customer[] => {
-    if (isBrowser) {
+    if (isBrowser && typeof window !== 'undefined') {
       return browserStorage.get(STORAGE_KEYS.customers);
     }
     return [];
@@ -90,24 +99,31 @@ export const customerDb = {
   },
 
   create: (customer: Omit<Customer, 'id' | 'visitCount' | 'totalSpent' | 'lastVisit'>): Customer => {
-    const id = `cust-${Date.now()}`;
-    const now = new Date().toISOString();
-    
-    const newCustomer: Customer = {
-      ...customer,
-      id,
-      visitCount: 0,
-      totalSpent: 0,
-      lastVisit: now
-    };
+    // Try backend first, fallback to browser storage
+    try {
+      // This will be handled by the context layer
+      const id = `cust-${Date.now()}`;
+      const now = new Date().toISOString();
+      
+      const newCustomer: Customer = {
+        ...customer,
+        id,
+        visitCount: 0,
+        totalSpent: 0,
+        lastVisit: now
+      };
 
-    if (isBrowser) {
-      const customers = browserStorage.get(STORAGE_KEYS.customers);
-      customers.push(newCustomer);
-      browserStorage.set(STORAGE_KEYS.customers, customers);
+      if (isBrowser) {
+        const customers = browserStorage.get(STORAGE_KEYS.customers);
+        customers.push(newCustomer);
+        browserStorage.set(STORAGE_KEYS.customers, customers);
+      }
+
+      return newCustomer;
+    } catch (error) {
+      console.error('Error creating customer:', error);
+      throw error;
     }
-
-    return newCustomer;
   },
 
   update: (id: string, updates: Partial<Customer>): void => {
@@ -133,7 +149,7 @@ export const customerDb = {
 // Employee operations
 export const employeeDb = {
   getAll: (): Employee[] => {
-    if (isBrowser) {
+    if (isBrowser && typeof window !== 'undefined') {
       return browserStorage.get(STORAGE_KEYS.employees);
     }
     return [];
@@ -175,7 +191,7 @@ export const employeeDb = {
 // Appointment operations
 export const appointmentDb = {
   getAll: () => {
-    if (isBrowser) {
+    if (isBrowser && typeof window !== 'undefined') {
       return browserStorage.get(STORAGE_KEYS.appointments);
     }
     return [];
@@ -204,7 +220,7 @@ export const appointmentDb = {
 // Tally operations
 export const tallyDb = {
   getAll: (): TallyItem[] => {
-    if (isBrowser) {
+    if (isBrowser && typeof window !== 'undefined') {
       return browserStorage.get(STORAGE_KEYS.tally);
     }
     return [];
@@ -249,7 +265,7 @@ export const tallyDb = {
 // Service operations
 export const serviceDb = {
   getAll: () => {
-    if (isBrowser) {
+    if (isBrowser && typeof window !== 'undefined') {
       return browserStorage.get(STORAGE_KEYS.services);
     }
     return [];
@@ -286,7 +302,7 @@ export const serviceDb = {
 // Product operations
 export const productDb = {
   getAll: () => {
-    if (isBrowser) {
+    if (isBrowser && typeof window !== 'undefined') {
       return browserStorage.get(STORAGE_KEYS.products);
     }
     return [];

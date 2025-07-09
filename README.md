@@ -1,5 +1,53 @@
 # Welcome to your Lovable project
 
+## Spring Boot Backend Integration
+
+This project now includes a Spring Boot backend for data persistence and API services.
+
+### Backend Setup
+
+1. **Prerequisites:**
+   - Java 17 or higher
+   - Maven 3.6+
+   - MySQL 8.0+
+
+2. **Database Setup:**
+   ```sql
+   CREATE DATABASE salon_management;
+   CREATE USER 'Saloon@001'@'localhost' IDENTIFIED BY 'Saloon@001';
+   GRANT ALL PRIVILEGES ON salon_management.* TO 'Saloon@001'@'localhost';
+   FLUSH PRIVILEGES;
+   ```
+
+3. **Run Backend:**
+   ```bash
+   cd backend
+   mvn spring-boot:run
+   ```
+   The backend will start on `http://localhost:8080`
+
+4. **Run Frontend:**
+   ```bash
+   npm run dev
+   ```
+   The frontend will start on `http://localhost:5173`
+
+### API Endpoints
+
+- **Customers:** `/api/customers`
+- **Employees:** `/api/employees`
+- **Services:** `/api/services`
+- **Appointments:** `/api/appointments`
+- **Tally Records:** `/api/tally`
+
+### Features
+
+- **Automatic Fallback:** If the backend is not available, the app falls back to browser storage
+- **Real-time Data:** All CRUD operations are synchronized with the MySQL database
+- **RESTful API:** Clean REST endpoints for all entities
+- **Data Validation:** Server-side validation using Bean Validation
+- **CORS Support:** Configured for frontend-backend communication
+
 ## Project info
 
 **URL**: https://lovable.dev/projects/42164a50-a27e-4bef-ad78-581bebd4b634
